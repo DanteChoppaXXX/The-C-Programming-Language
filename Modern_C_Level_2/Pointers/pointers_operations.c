@@ -3,7 +3,8 @@
 
 int main(){
 
-
+    double p0;
+    double p1;
 
     return EXIT_SUCCESS;
 }
