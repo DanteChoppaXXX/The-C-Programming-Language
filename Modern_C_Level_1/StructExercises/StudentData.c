@@ -11,6 +11,15 @@ typedef struct
 
 }Student;
 
+void displayStudentDetails(Student student){
+    
+    printf("\nSTUDENT DETAILS:\n");
+    printf("================\n");
+    printf("Name: %s\n", student.name);
+    printf("Age: %d\n", student.age);
+    printf("Roll Number: %d\n", student.rollNumber);
+    printf("Mark: %.1f\n", student.mark);
+}
 
 int main(){
 
@@ -29,14 +38,7 @@ int main(){
     printf("Enter your mark: \n");
     scanf("%f", &student.mark);
 
-    printf("\nSTUDENT DETAILS:\n");
-    printf("================\n");
-    printf("Name: %s\n", student.name);
-    printf("Age: %d\n", student.age);
-    printf("Roll Number: %d\n", student.rollNumber);
-    printf("Mark: %.1f\n", student.mark);
-
-
-
+    displayStudentDetails(student);
+    
     return EXIT_SUCCESS;
 }
