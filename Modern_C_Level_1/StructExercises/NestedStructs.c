@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* THIS PROGRAM CAN BE ADVANCED BY IMPLEMENTING THE NECESSARY INPUT VALIDATIONS. */
+
 // Define a struct Date(day, month, year).
 typedef struct
 {
