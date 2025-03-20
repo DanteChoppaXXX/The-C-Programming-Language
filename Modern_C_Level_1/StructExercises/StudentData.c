@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Structure to store student data
 typedef struct
 {
     char name[25];
@@ -11,9 +12,10 @@ typedef struct
 
 }Student;
 
-void displayStudentDetails(Student student){
+// Function to display the student Data.
+void displayStudentData(Student student){
     
-    printf("\nSTUDENT DETAILS:\n");
+    printf("\nSTUDENT DATA:\n");
     printf("================\n");
     printf("Name: %s\n", student.name);
     printf("Age: %d\n", student.age);
@@ -23,8 +25,10 @@ void displayStudentDetails(Student student){
 
 int main(){
 
+    // Create an object of type (struct Student).
     Student student;
 
+    // Prompt the user for their Data.
     printf("Enter your name: \n");
     fgets(student.name, 25, stdin);
     student.name[strlen(student.name) - 1] = '\0';
@@ -38,7 +42,8 @@ int main(){
     printf("Enter your mark: \n");
     scanf("%f", &student.mark);
 
-    displayStudentDetails(student);
+    // Call the data display function with the student object as the argument.
+    displayStudentData(student);
     
     return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
+// Structure to store student data
 typedef struct
 {
     char name[25];
@@ -14,6 +14,7 @@ typedef struct
 
 int main(){
 
+    // Create an array of struct Student to store students data.
     Student students[5][4] = {
         {"John Jones", 21, 9, 89.5},
         {"Mary Jackson", 19, 6, 79.6},
@@ -22,9 +23,11 @@ int main(){
         {"Kyle Xavi", 30, 5, 90.8},
     };
 
-    printf("\nSTUDENT DETAILS:\n");
+    // 
+    printf("\nSTUDENTS DATA:\n");
     printf("================\n");
 
+    // Loop through the students array and display their data.
     for (int i = 0; i < 5; i++)
     {
         printf("Student %d\n", i + 1);
