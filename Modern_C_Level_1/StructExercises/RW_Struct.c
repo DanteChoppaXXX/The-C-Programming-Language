@@ -17,7 +17,12 @@ int main(){
     /* Save an array of struct Student to a binary file. */
 
     // Create a student array of type (struct Student).
-    Student* student = malloc(sizeof(Student));
+    Student student = {
+        .name = "John Jones",
+        .age = 23,
+        .rollNumber = 443,
+        .mark = 90.5
+    };
 
     // Open a file for writing in binary mode.
     FILE* dataFile;
@@ -34,7 +39,7 @@ int main(){
 
     
     // Write
-
+    
 
     /* Read the file and display the stored student details. */
 
