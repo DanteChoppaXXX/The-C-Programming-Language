@@ -27,11 +27,18 @@ int main(){
 
     // Allocate memory dynamically for an array of struct Student using malloc().
     Student* student = malloc(sizeof(Student));
+    if (student == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return EXIT_FAILURE;
+    }
+    
 
     // Prompt the user for their Data.
     printf("Enter your name: \n");
     fgets(student->name, 25, stdin);
     student->name[strlen(student->name) - 1] = '\0';
+    fflush(stdin); // Clear the input buffer to prevent buffer issues.
 
     printf("Enter your age: \n");
     scanf("%d", &student->age);
@@ -44,6 +51,9 @@ int main(){
 
     // Call the data display function with the student object as the argument.
     displayStudentData(student);
+
+    // Free the memory allocated for the student object.
+    free(student);
     
     return EXIT_SUCCESS;
 }

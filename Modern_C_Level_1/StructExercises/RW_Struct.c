@@ -17,7 +17,7 @@ FILE* dataFile;
 
 // Function Prototypes.
 void writeData(Student student);
-void readData(Student student);
+void readData(Student* student);
 void displayStudentData(Student student);
 
 int main(){
@@ -36,7 +36,7 @@ int main(){
     writeData(student);
 
     // Read the file and display the stored student details.
-    readData(student);
+    readData(&student);
 
     return EXIT_SUCCESS;
 }
@@ -59,11 +59,12 @@ void writeData(Student student)
         exit(1);
     }
 
+    fclose(dataFile);
     printf("Student data written to file successfully!\n");
 
 };
 
-void readData(Student student)
+void readData(Student* student)
 {
     dataFile = fopen("./studentdata.bin", "rb");
     if (dataFile == NULL)
@@ -74,12 +75,15 @@ void readData(Student student)
     else{
         printf("File Successfully Opened!\n");
     }
-    if(fread(&student, sizeof(student), 1, dataFile) > 0)
+    if(fread(student, sizeof(student), 1, dataFile) <= 0)
     {
         printf("Failed to read from file!\n");
         exit(1);
     }
-    displayStudentData(student);
+    displayStudentData(*student);
+    
+    fclose(dataFile);
+    printf("\nStudent data read from file successfully!\n");
 };
 
 // Function to display the student Data.

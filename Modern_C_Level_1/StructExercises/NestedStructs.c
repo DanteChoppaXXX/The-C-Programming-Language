@@ -35,6 +35,7 @@ int main()
     printf("Enter your full name: \n");
     fgets(employee.name, 50, stdin);
     employee.name[strlen(employee.name) - 1] = '\0';
+    fflush(stdin); // Clear the input buffer to prevent buffer issues.
 
     printf("Enter your ID number: \n");
     scanf("%d", &employee.id);
@@ -42,7 +43,7 @@ int main()
     printf("Enter your exact salary amount(e.g 50000.55): \n");
     scanf("%lf", &employee.salary);
 
-    printf("Enter the date you joined the company(e.g dd mm yyyy): \n");
+    printf("Enter the date you joined the company(e.g dd-mm-yyyy): \n");
     scanf("%d %d %d", &employee.joiningDate.day, &employee.joiningDate.month, &employee.joiningDate.year);
 
     // Display the employee's data.
@@ -52,7 +53,7 @@ int main()
     printf("Name: %s\n",employee.name);
     printf("ID: %d\n",  employee.id);
     printf("Salary: $%.2lf\n", employee.salary);
-    printf("Join Date: %d/%d/%d", employee.joiningDate.day, employee.joiningDate.month, employee.joiningDate.year);
+    printf("Join Date: %d-%d-%d", employee.joiningDate.day, employee.joiningDate.month, employee.joiningDate.year);
 
 
     return EXIT_SUCCESS;
