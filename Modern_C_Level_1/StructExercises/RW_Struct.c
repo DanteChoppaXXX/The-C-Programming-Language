@@ -12,6 +12,14 @@ typedef struct
 
 }Student;
 
+// File pointer.
+FILE* dataFile;
+
+// Function Prototypes.
+void writeData(Student student);
+void readData(Student student);
+void displayStudentData(Student student);
+
 int main(){
 
     /* Save an array of struct Student to a binary file. */
@@ -24,25 +32,63 @@ int main(){
         .mark = 90.5
     };
 
-    // Open a file for writing in binary mode.
-    FILE* dataFile;
-    
+    // Write the student array to the file.
+    writeData(student);
+
+    // Read the file and display the stored student details.
+    readData(student);
+
+    return EXIT_SUCCESS;
+}
+
+void writeData(Student student)
+{
     dataFile = fopen("./studentdata.bin", "wb");
     if (dataFile == NULL)
     {
         printf("Failed to open file!\n");
-        return EXIT_FAILURE;
+        exit(1);
     }
     else{
         printf("File Successfully Opened!\n");
     }
 
+    if(fwrite(&student, sizeof(student), 1, dataFile) <= 0)
+    {
+        printf("Failed to write to file!\n");
+        exit(1);
+    }
+
+    printf("Student data written to file successfully!\n");
+
+};
+
+void readData(Student student)
+{
+    dataFile = fopen("./studentdata.bin", "rb");
+    if (dataFile == NULL)
+    {
+        printf("Failed to open file!\n");
+        exit(1);
+    }
+    else{
+        printf("File Successfully Opened!\n");
+    }
+    if(fread(&student, sizeof(student), 1, dataFile) > 0)
+    {
+        printf("Failed to read from file!\n");
+        exit(1);
+    }
+    displayStudentData(student);
+};
+
+// Function to display the student Data.
+void displayStudentData(Student student){
     
-    // Write
-    
-
-    /* Read the file and display the stored student details. */
-
-
-    return EXIT_SUCCESS;
+    printf("\nSTUDENT DATA:\n");
+    printf("================\n");
+    printf("Name: %s\n", student.name);
+    printf("Age: %d\n", student.age);
+    printf("Roll Number: %d\n", student.rollNumber);
+    printf("Mark: %.1f\n", student.mark);
 }
