@@ -32,7 +32,8 @@ int main(){
     printf("Enter your name: \n");
     fgets(student.name, 25, stdin);
     student.name[strlen(student.name) - 1] = '\0';
-
+    fflush(stdin); // Clear the input buffer to prevent buffer issues.
+    
     printf("Enter your age: \n");
     scanf("%d", &student.age);
 
