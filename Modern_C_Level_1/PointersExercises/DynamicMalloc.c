@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 /*
+INTERMEDIATE LEVEL 1:
 Use malloc() to allocate memory for an integer dynamically.
 Assign it a value, print it, and then free the memory.
 */

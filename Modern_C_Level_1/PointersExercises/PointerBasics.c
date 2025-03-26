@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 /*
+BASIC LEVEL 1:
 Declare an integer variable, assign it a value, and create a pointer that holds its address.
 Print the variable’s value using both the variable and the pointer.
 */

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 /*
+BASIC LEVEL 2:
 Declare an array and use pointer arithmetic to access its elements.
 Print the elements by incrementing the pointer instead of using array indexing.
 */
