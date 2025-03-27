@@ -12,7 +12,7 @@ void reverseArray(int* array, int size);
 
 int main()
 {
-    int numbers[] = {25, 20, 15, 10, 5};
+    int numbers[] = {9,8,7,6,5,4,3,2,1,0};
 
     int size = sizeof(numbers) / sizeof(numbers[0]);
 
@@ -49,8 +49,7 @@ void reverseArray(int* array, int size)
 {
     int half = (size / 2);
     int* pStart = malloc(size * sizeof(int));
-    int* pEnd = malloc(size * sizeof(int));
-
+    
     for (int i = 0; i < half; i++)
     {
         pStart[i] = array[i];
@@ -63,11 +62,11 @@ void reverseArray(int* array, int size)
         
     }
     
-
-    
-    for (int i = 0; i < size; i++)
+    for (int i = size - 1; i >= 0; i--)
     {
-        printf("%d\n", pStart[i]);
+        *array = pStart[i];
+        array++;
     }
-    //printf("%d\n", half);
+    
+    free(pStart);
 }
