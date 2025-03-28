@@ -11,7 +11,7 @@ Allocate memory dynamically for a Person and modify its attributes using a point
 // Structure to store Person data.
 typedef struct
 {
-    char name[10];
+    char name[25];
     int age;
 
 }Person;
