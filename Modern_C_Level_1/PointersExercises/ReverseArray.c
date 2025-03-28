@@ -47,26 +47,23 @@ int main()
 // Function to reverse array.
 void reverseArray(int* array, int size)
 {
-    int half = (size / 2);
-    int* pStart = malloc(size * sizeof(int));
+    // Create two pointers; one pointing to the start of the array and the other to the end.
+    int* left = array;
+    int* right = array + size - 1;
+
+    /* Swap the elements at each end together while moving the pointers towards each other until they meet at the middle. */
     
-    for (int i = 0; i < half; i++)
+    while (left < right)
     {
-        pStart[i] = array[i];
+        // Swap the elements at each end.
+        int * temp; 
+        *temp = *left;
+        *left = *right;
+        *right = *temp;
         
+        // Move the pointers towards each other.
+        left ++;
+        right--;
     }
     
-    for (int i = half; i < size; i++)
-    {
-        pStart[i] = array[i];
-        
-    }
-    
-    for (int i = size - 1; i >= 0; i--)
-    {
-        *array = pStart[i];
-        array++;
-    }
-    
-    free(pStart);
 }
