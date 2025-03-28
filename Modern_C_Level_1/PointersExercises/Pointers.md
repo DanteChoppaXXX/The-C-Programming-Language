@@ -39,7 +39,8 @@ Here are some exercises to strengthen your understanding of pointers in C:
    - Allocate memory dynamically for a `Person` and modify its attributes using a pointer.  
 
 10. **Pointer Security Exercise**:  
-   - Simulate a basic buffer overflow by writing beyond an allocated memory block.  
+   - Simulate a basic buffer overflow by writing beyond an allocated memory block.
+   - ### Try passing code to the overflowed buffer for execution. ⚠ ⚠ ⚠   
    - Discuss why this is dangerous and how it can be exploited in cybersecurity.  
 
  🚀🚀🚀
