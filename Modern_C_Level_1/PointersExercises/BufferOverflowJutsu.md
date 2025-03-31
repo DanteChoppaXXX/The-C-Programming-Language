@@ -1,3 +1,20 @@
+## **Final Checklist**
+✅ Understanding **pointers and memory management**  
+✅ Knowing **array indexing and memory layout**  
+✅ Understanding **stack vs. heap memory**  
+✅ Knowing how **function calls and stack frames work**  
+✅ Avoiding **unsafe string functions**  
+✅ Learning **basic assembly and debugging**  
+
+---
+
+### **What’s Next?**
+Once you are comfortable with these topics, you can start practicing **simple buffer overflow exploits** in a controlled environment.
+
+___
+
+___
+
 ## **Buffer Overflow Exploitation Techniques**  
 
 Buffer overflows are a critical vulnerability in programs written in low-level languages like C and C++. Attackers can use them to hijack program execution, execute arbitrary code, and even gain system privileges. Below are different **buffer overflow exploitation techniques** and how they work.
