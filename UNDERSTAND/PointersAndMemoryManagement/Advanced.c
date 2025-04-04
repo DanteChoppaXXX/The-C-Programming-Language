@@ -15,17 +15,44 @@ Ensure proper memory deallocation (free()).
 Concepts Covered: Pointer arithmetic, dynamic memory allocation, avoiding memory leaks.
 */
 
-int sumOfArray();
+int sumOfArray(int* array, int size);
 
 int main()
 {
+    int numOfSubjects;
+    //int sumOfSubjectScores;
+
+    // Get the number of subjects.
+    printf("Enter the number of subjects: \n");
+    scanf("%d", &numOfSubjects);
     
-    
+    // Dynamically allocated memory for the scores array.
+    int* scores = malloc(numOfSubjects * sizeof(int));
+
+    printf("Enter the scores one after the other: \n");
+    for (int i = 0; i < numOfSubjects; i++)
+    {
+        scanf("%d", &scores[i]);
+    }
+
+    // Display the sum of the subject scores.
+    printf("Sum Of Subject Scores: %d\n", sumOfArray(scores, numOfSubjects));
+
+    // Free the allocated memory.
+    free(scores);
+
     return EXIT_SUCCESS;
 }
 
-int sumOfArray()
+int sumOfArray(int* array, int size)
 {
-    int sum = 0; 
+    int sum = 0;
+    
+    for (int i = 0; i < size; i++)
+    {
+        sum = sum + *array;
+        array++;
+    }
+    
     return sum;
 }
