@@ -20,6 +20,7 @@ int main()
         {7, 8, 9}
     };
 
+    // Display the matrix in row-major order using array notation.
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 3; j++)
@@ -29,12 +30,38 @@ int main()
         printf("\n");
     }
 
-    // Display the address of the elements in the matrix.
+    printf("\n");
+
+    // Display the matrix in row-major order using pointer arithmetic.
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            printf("%d ", *(*(matrix + i) + j));
+        }
+        printf("\n");
+    }
+
+    printf("\n");
+
+    // Display the address of the elements in the matrix using array notation.
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 3; j++)
         {
             printf("%p ", &matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\n");
+
+    // Display the address of the elements in the matrix using pointer arthimetic.
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            printf("%p ", *(matrix + i) + j);
         }
         printf("\n");
     }
