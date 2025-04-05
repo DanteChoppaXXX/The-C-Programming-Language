@@ -14,7 +14,20 @@ Concepts Covered: Array indexing, pointer notation, array element addresses.
 
 int main()
 {
+    // Declare an integer array of size 5 and initialize it.
+    int array[5] = {10, 20, 30, 40, 50};
+
+    // Display the elements of the array.
+    for (int i = 0; i < 5; i++)
+    {
+        printf("%d %d\n", array[i], *(array + i));
+    }
     
+    // Display the address of each elements
+    for (int i = 0; i < 5; i++)
+    {
+        printf("%p %p\n", &array[i], (array + i));
+    }
     
     return EXIT_SUCCESS;
 }

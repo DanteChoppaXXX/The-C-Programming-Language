@@ -14,6 +14,30 @@ Concepts Covered: Memory layout of 2D arrays, pointer arithmetic, row-major orde
 
 int main()
 {
+    int matrix[3][3] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    // Display the address of the elements in the matrix.
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            printf("%p ", &matrix[i][j]);
+        }
+        printf("\n");
+    }
     
     
     return EXIT_SUCCESS;
