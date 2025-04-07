@@ -39,7 +39,7 @@ int main()
     for (int i = 0; i < rows; i++)
     {
         pArray[i] = malloc(cols * sizeof(int));
-        if (pArray[i] != NULL)
+        if (pArray[i] == NULL)
         {
             perror("Memory Allocation Failed!");
             return EXIT_FAILURE;
