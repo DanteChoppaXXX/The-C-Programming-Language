@@ -28,6 +28,11 @@ int main()
     
     // Dynamically allocated memory for the scores array.
     int* scores = malloc(numOfSubjects * sizeof(int));
+    if (scores == NULL)
+    {
+        perror("Memory Allocation Failed!");
+        return EXIT_FAILURE;
+    }
 
     printf("Enter the scores one after the other: \n");
     for (int i = 0; i < numOfSubjects; i++)

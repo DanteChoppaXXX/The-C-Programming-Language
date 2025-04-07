@@ -24,6 +24,11 @@ int main()
     scanf("%d", &number);
 
     int* numbers = malloc(number * sizeof(int));
+    if (numbers == NULL)
+    {
+        perror("Memory Allocation Failed!");
+        return EXIT_FAILURE;
+    }
 
     // Fill the allocated memory with numbers from 1 to user's number.
     for (int i = 0; i < number; i++)

@@ -27,12 +27,24 @@ int main()
 
     // Allocate memory for the 2D array using an array of pointers (int**).
     int** pArray = malloc(rows * sizeof(int*));
+    if (pArray == NULL)
+    {
+        perror("Memory Allocation Failed!");
+        return EXIT_FAILURE;
+    }
+    
     printf("\nArray Memory Address: %p\n", pArray);
 
     // Allocate memory for each row (i.e each pointer) in the array.
     for (int i = 0; i < rows; i++)
     {
         pArray[i] = malloc(cols * sizeof(int));
+        if (pArray[i] != NULL)
+        {
+            perror("Memory Allocation Failed!");
+            return EXIT_FAILURE;
+        }
+        
     }
     
     // Fill the array with values such that arr[i][j] = i * j.
