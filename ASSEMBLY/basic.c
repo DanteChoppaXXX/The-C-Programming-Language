@@ -9,7 +9,7 @@ int main()
     int a = 5;
     int b = 6;
 
-    add(a, b);
+    printf("Result: %d\n", add(a, b));
    
     return EXIT_SUCCESS;
 }

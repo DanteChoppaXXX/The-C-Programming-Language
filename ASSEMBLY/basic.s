@@ -1,5 +1,9 @@
 	.file	"basic.c"
 	.text
+	.section	.rodata
+.LC0:
+	.string	"Result: %d\n"
+	.text
 	.globl	main
 	.type	main, @function
 main:
@@ -18,6 +22,11 @@ main:
 	movl	%edx, %esi
 	movl	%eax, %edi
 	call	add
+	movl	%eax, %esi
+	leaq	.LC0(%rip), %rax
+	movq	%rax, %rdi
+	movl	$0, %eax
+	call	printf@PLT
 	movl	$0, %eax
 	leave
 	.cfi_def_cfa 7, 8
