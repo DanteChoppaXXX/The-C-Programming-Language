@@ -1,5 +1,5 @@
 ## LimboChat Program Algorithm 🧠
-### (A Multi-Client Chat Server With Authentication)
+#### (A Multi-Client Chat Server With User Authentication)
 This is structured for clarity and completeness, with modular logic, clean separation of responsibilities, and a flow that encourages further expansion (like commands or encryption later).
 
 ---
