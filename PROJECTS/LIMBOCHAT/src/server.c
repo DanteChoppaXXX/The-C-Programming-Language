@@ -9,7 +9,8 @@
 #include <sys/errno.h>
 
 
-#define SERVER_PORT 4190 
+#define SERVER_PORT 4190
+#define BUFFER_SIZE 1024
 
 int main()
 {
@@ -21,7 +22,7 @@ int main()
     // Check if the socket was created successfully.
     if (server_socket < 0)
     {
-        perror("[x] Failed To Create Socket! [x] ");
+        perror("[x] Failed To Create Socket! [FAILED] ");
         return EXIT_FAILURE;
     }
     
@@ -40,7 +41,7 @@ int main()
     // Bind the socket to the server address.
     if (bind(server_socket, (struct sockaddr*)&server_address, server_address_len) < 0)    
     {
-        perror("[x]Failed To Bind The Socket!");
+        perror("[x] Failed To Bind The Socket! [FAILED] ");
         return EXIT_FAILURE;
     }
 
@@ -49,7 +50,7 @@ int main()
     // Listen for incoming connections.
     if (listen(server_socket, 3) < 0)
     {
-        perror("[x] Failed To Listen On The Server Address [x] ");
+        perror("[x] Failed To Listen On The Server Address [FAILED] ");
         return EXIT_FAILURE;
     }
 
@@ -64,7 +65,7 @@ int main()
     // Check if the client was accepted.
     if (client_socket < 0)
     {
-        perror("[x] Failed To Accept Incoming Client Connection [x] ");
+        perror("[x] Failed To Accept Incoming Client Connection [FAILED] ");
         return EXIT_FAILURE;
     }
 
