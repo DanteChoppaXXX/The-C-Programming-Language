@@ -4,8 +4,8 @@
 
 ### **Day 1 – Setup & Skeleton Server**
 - ✅ Create folder and organize files (`server.c`, `client.c`, `users.txt`, etc.)
-- [ ] Initialize TCP server: `socket()`, `bind()`, `listen()`
-- [ ] Accept one client connection
+- ✅ Initialize TCP server: `socket()`, `bind()`, `listen()`
+- ✅ Accept one client connection
 - [ ] Basic send/recv loop with client
 - [ ] Clean exit on `Ctrl+C` (optional)
 
