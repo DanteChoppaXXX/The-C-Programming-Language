@@ -7,17 +7,32 @@
 #include <sys/unistd.h>
 #include <arpa/inet.h>
 #include <sys/errno.h>
+#include <signal.h>
 
 
 #define SERVER_PORT 4190
 #define BUFFER_SIZE 1024
 
+// Global Variables.
+int client_socket;
+int server_socket;
+
+// Function Prototype.
+void cleanup();
+void handle_sigint(int sig);
+
+
 int main()
 {
+    /* Clean Exit On Ctrl+C (optional) */
+    
+    // Register the signal handler.
+    signal(SIGINT, handle_sigint);
+
     /* Initialize TCP Server: socket(), bind(), listen() */
 
     // Create a socket object. 
-    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
     
     // Check if the socket was created successfully.
     if (server_socket < 0)
@@ -58,8 +73,7 @@ int main()
     
     /* Accept One Client Connection */
     
-    // Declare a client socket object.
-    int client_socket;
+    // Initialize the client socket object with accept().
     client_socket = accept(server_socket, (struct sockaddr*)&server_address, &server_address_len);
 
     // Check if the client was accepted.
@@ -76,23 +90,70 @@ int main()
     
     if (send(client_socket, message, strlen(message), 0) < 0)
     {
-        perror("[x] Failed To Send Message [x] ");
+        perror("[x] Failed To Send Message [FAILED] ");
     }
     else
     {
-        printf("[+] Welcome Message Sent Successfully! [SUCCESS]\n");
+        printf("[+] Welcome Message Sent Successfully! [SUCCESS]\n\n");
     }
     
     /* Basic send/recv Loop With Client */
+    
     while (1)
     {
-        
+        char buffer[BUFFER_SIZE];
+
+        size_t bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Message From Client! [FAILED] ");
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            buffer[bytes_received] = '\0';
+            printf("[Client]: %s\n", buffer);
+        }
+
+        // Send message to client.
+        char mBuffer[BUFFER_SIZE];
+        int length;
+
+        printf("[Server]: ");
+        fgets(mBuffer, BUFFER_SIZE, stdin);
+        length = strlen(mBuffer);
+        mBuffer[length - 1] = '\0';
+
+        if (send(client_socket, mBuffer, strlen(mBuffer), 0) < 0)
+        {
+            perror("[x] Failed To Send Message [FAILED] ");
+        }
+        else
+        {
+            printf("[SUCCESS]\n");
+        }
         
     }
-    
-
-    /* Clean Exit On Ctrl+C (optional) */
-    /* code */
 
     return EXIT_SUCCESS;
+}
+
+void cleanup()
+{
+    // Close the sockets.
+    printf("\n[+] Closing The Sockets... [SUCCESS]\n");
+    close(client_socket);
+    close(server_socket);
+
+    // Disconnection Message.
+    printf("[+] Disconnected The Server [SUCCESS]\n");
+}
+
+void handle_sigint(int sig)
+{
+    // Run Clean Up.
+    cleanup();
+
+    // Exit Gracefully.
+    exit(0);
 }
