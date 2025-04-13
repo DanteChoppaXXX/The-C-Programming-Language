@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/errno.h>
 #include <signal.h>
+#include <crypt.h>
 
 
 #define SERVER_PORT 4190
@@ -17,6 +18,7 @@
 // Global Variables.
 int client_socket;
 int server_socket;
+FILE *userCred;
 
 // Client Tracking Structure. 
 typedef struct
@@ -32,6 +34,7 @@ typedef struct
 void cleanup();
 void handle_sigint(int sig);
 void authenticate();
+char hashPassword(char* password);
 
 
 int main()
@@ -219,11 +222,29 @@ void authenticate()
             scanf("%s", username);
             strncpy(client->username, username, sizeof(client->username));
 
-
             printf("Enter password: ");
             scanf("%s", password);
             strncpy(client->password, password, sizeof(client->password));
 
+            // Save username and password to file.
+            userCred = fopen("./users.txt", "a");
+            if (userCred == NULL)
+            {
+                perror("[x] Failed To Open File! [FAILED]");
+            }
+            
+            //fprintf(userCred, "%s", client->username);
+            char* hashedPassword = crypt(client->password, client->username);
+            if (hashedPassword != NULL)
+            {
+                fprintf(userCred, "%s:%s\n", client->username, hashedPassword);
+            } 
+            else
+            {
+                perror("[x] Error Hashing Password! [FAILED]");
+            }
+
+            fclose(userCred);
 
             printf("[+] Registering ... [SUCCESS]\n");
             sleep(2);
