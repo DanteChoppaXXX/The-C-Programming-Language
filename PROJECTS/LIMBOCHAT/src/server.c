@@ -18,7 +18,8 @@
 // Global Variables.
 int client_socket;
 int server_socket;
-FILE *userCred;
+FILE* userCred;
+char* hashedPassword;
 
 // Client Tracking Structure. 
 typedef struct
@@ -194,6 +195,10 @@ void authenticate()
 
     while (1)
     {
+        // Buffers for credential validation.
+        char buffer[85];
+        char compareBuffer[85];
+
         printf("LOGIN or REGISTER [enter /login or /register]: ");
         scanf("%s", authChoice);
         
@@ -208,6 +213,29 @@ void authenticate()
             printf("Enter password: ");
             scanf("%s", password);
             strncpy(client->password, password, sizeof(client->password));
+
+
+
+            hashedPassword = crypt(client->password, client->username);
+            if (hashedPassword != NULL)
+            {
+                snprintf(userCred, "%s:%s\n", client->username, hashedPassword);
+            } 
+            else
+            {
+                perror("[x] Error Hashing Password! [FAILED]");
+            }
+
+            // Validate the credentials. (Check if username:hashedpassword exist in the users credential file.)
+            userCred = fopen("./users.txt", "r");
+            if (userCred == NULL)
+            {
+                perror("[x] Failed To Open File! [FAILED]");
+            }
+            
+            fread(compareBuffer, sizeof(compareBuffer), 1, userCred);
+            printf("%s\n", compareBuffer);
+
 
 
             printf("[+] Logging in... [SUCCESS]\n");
@@ -234,7 +262,7 @@ void authenticate()
             }
             
             //fprintf(userCred, "%s", client->username);
-            char* hashedPassword = crypt(client->password, client->username);
+            hashedPassword = crypt(client->password, client->username);
             if (hashedPassword != NULL)
             {
                 fprintf(userCred, "%s:%s\n", client->username, hashedPassword);
