@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/unistd.h>
 #include <arpa/inet.h>
@@ -16,6 +17,16 @@
 // Global Variables.
 int client_socket;
 int server_socket;
+
+// Client Tracking Structure. 
+typedef struct
+{
+    int socket_fd;
+    char username[32];
+    char password[50];
+    bool is_authenticated;
+
+} Client;
 
 // Function Prototype.
 void cleanup();
@@ -173,7 +184,11 @@ void authenticate()
         "/register"
     };
     char authChoice[10];
-    
+    char username[32];
+    char password[50];
+
+    Client* client = malloc(sizeof(Client));
+
     while (1)
     {
         printf("LOGIN or REGISTER [enter /login or /register]: ");
@@ -182,6 +197,16 @@ void authenticate()
         if (strcmp(authChoice, authOptions[0]) == 0)
         {
             // Do LOGIN process.
+            printf("Enter username: ");
+            scanf("%s", username);
+            strncpy(client->username, username, sizeof(client->username));
+
+
+            printf("Enter password: ");
+            scanf("%s", password);
+            strncpy(client->password, password, sizeof(client->password));
+
+
             printf("[+] Logging in... [SUCCESS]\n");
             sleep(2);
             break;
@@ -190,6 +215,16 @@ void authenticate()
         else if (strcmp(authChoice, authOptions[1]) == 0)
         {
             // Do REGISTRATION process.
+            printf("Enter username: ");
+            scanf("%s", username);
+            strncpy(client->username, username, sizeof(client->username));
+
+
+            printf("Enter password: ");
+            scanf("%s", password);
+            strncpy(client->password, password, sizeof(client->password));
+
+
             printf("[+] Registering ... [SUCCESS]\n");
             sleep(2);
             break;
@@ -199,8 +234,6 @@ void authenticate()
             printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
         }
     }
-    
-    
-    
+        
 
 }
