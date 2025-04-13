@@ -20,6 +20,7 @@ int server_socket;
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
+void authenticate();
 
 
 int main()
@@ -156,4 +157,10 @@ void handle_sigint(int sig)
 
     // Exit Gracefully.
     exit(0);
+}
+
+void authenticate()
+{
+    printf("Login Or Register");
+    
 }
