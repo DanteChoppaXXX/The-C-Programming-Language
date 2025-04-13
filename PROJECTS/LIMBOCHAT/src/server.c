@@ -193,11 +193,13 @@ void authenticate()
 
     Client* client = malloc(sizeof(Client));
 
-    while (1)
+    int loginAttempt = 0;
+
+    while (loginAttempt < 3)
     {
         // Buffers for credential validation.
         char buffer[85];
-        char compareBuffer[85];
+        char compareBuffer[BUFFER_SIZE];
 
         printf("LOGIN or REGISTER [enter /login or /register]: ");
         scanf("%s", authChoice);
@@ -214,33 +216,45 @@ void authenticate()
             scanf("%s", password);
             strncpy(client->password, password, sizeof(client->password));
 
-
+            
 
             hashedPassword = crypt(client->password, client->username);
             if (hashedPassword != NULL)
             {
-                snprintf(userCred, "%s:%s\n", client->username, hashedPassword);
+                snprintf(buffer, sizeof(buffer), "%s:%s\n", client->username, hashedPassword);
             } 
             else
             {
-                perror("[x] Error Hashing Password! [FAILED]");
+                perror("[x] Error Hashing Password! [FAILED] ");
             }
-
+            
             // Validate the credentials. (Check if username:hashedpassword exist in the users credential file.)
             userCred = fopen("./users.txt", "r");
             if (userCred == NULL)
             {
-                perror("[x] Failed To Open File! [FAILED]");
+                perror("[x] Failed To Open File! [FAILED] ");
             }
             
-            fread(compareBuffer, sizeof(compareBuffer), 1, userCred);
-            printf("%s\n", compareBuffer);
+            fread(compareBuffer, BUFFER_SIZE, 1, userCred);
+
+            // Condition for valid credentials.
+            if (strstr(compareBuffer, buffer) != NULL)
+            {
+                printf("[+] Logging in... [SUCCESS]\n");
+                sleep(2);
+                break;
+            }
+            else
+            {
+                loginAttempt++;
+                perror("[x] Invalid Username Or Password! [FAILED] ");    
+                continue;
+            }
+            
+            
+            
 
 
-
-            printf("[+] Logging in... [SUCCESS]\n");
-            sleep(2);
-            break;
 
         }
         else if (strcmp(authChoice, authOptions[1]) == 0)
@@ -258,7 +272,7 @@ void authenticate()
             userCred = fopen("./users.txt", "a");
             if (userCred == NULL)
             {
-                perror("[x] Failed To Open File! [FAILED]");
+                perror("[x] Failed To Open File! [FAILED] ");
             }
             
             //fprintf(userCred, "%s", client->username);
@@ -269,7 +283,7 @@ void authenticate()
             } 
             else
             {
-                perror("[x] Error Hashing Password! [FAILED]");
+                perror("[x] Error Hashing Password! [FAILED] ");
             }
 
             fclose(userCred);
@@ -281,6 +295,7 @@ void authenticate()
         else
         {
             printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+            loginAttempt++;
         }
     }
         
