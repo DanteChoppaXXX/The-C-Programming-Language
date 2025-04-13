@@ -30,6 +30,9 @@ int main()
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
+    // Authenticate Client.
+    authenticate();
+
     /* Initialize TCP Server: socket(), bind(), listen() */
 
     // Create a socket object. 
@@ -139,6 +142,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
+// Cleans up used resources.
 void cleanup()
 {
     // Close the sockets.
@@ -150,6 +154,7 @@ void cleanup()
     printf("[+] Disconnected The Server [SUCCESS]\n");
 }
 
+// Handles clean exit on CTRL+C.
 void handle_sigint(int sig)
 {
     // Run Clean Up.
@@ -159,8 +164,43 @@ void handle_sigint(int sig)
     exit(0);
 }
 
+// Authenticates each incoming client.
 void authenticate()
 {
-    printf("Login Or Register");
+    // Each new client must pass through this before being allowed to chat.
+    char authOptions[2][10] = {
+        "/login",
+        "/register"
+    };
+    char authChoice[10];
     
+    while (1)
+    {
+        printf("LOGIN or REGISTER [enter /login or /register]: ");
+        scanf("%s", authChoice);
+        
+        if (strcmp(authChoice, authOptions[0]) == 0)
+        {
+            // Do LOGIN process.
+            printf("[+] Logging in... [SUCCESS]\n");
+            sleep(2);
+            break;
+
+        }
+        else if (strcmp(authChoice, authOptions[1]) == 0)
+        {
+            // Do REGISTRATION process.
+            printf("[+] Registering ... [SUCCESS]\n");
+            sleep(2);
+            break;
+        }
+        else
+        {
+            printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+        }
+    }
+    
+    
+    
+
 }
