@@ -195,6 +195,7 @@ void authenticate()
 
     int loginAttempt = 0;
 
+
     while (loginAttempt < 3)
     {
         // Buffers for credential validation.
@@ -247,15 +248,8 @@ void authenticate()
             else
             {
                 loginAttempt++;
-                perror("[x] Invalid Username Or Password! [FAILED] ");    
-                continue;
+                perror("[x] Invalid Username Or Password! [FAILED] ");
             }
-            
-            
-            
-
-
-
         }
         else if (strcmp(authChoice, authOptions[1]) == 0)
         {
@@ -263,6 +257,24 @@ void authenticate()
             printf("Enter username: ");
             scanf("%s", username);
             strncpy(client->username, username, sizeof(client->username));
+
+            // Check if username already exist.
+            userCred = fopen("./users.txt", "r");
+            if (userCred == NULL)
+            {
+                perror("[x] Failed To Open File! [FAILED] ");
+            }
+            
+            fread(compareBuffer, BUFFER_SIZE, 1, userCred);
+
+            fclose(userCred);
+
+            if (strstr(compareBuffer, client->username) != NULL)
+            {
+                loginAttempt++;
+                perror("[x] Username Already Exist! [FAILED] ");
+                continue;
+            }
 
             printf("Enter password: ");
             scanf("%s", password);
@@ -275,7 +287,7 @@ void authenticate()
                 perror("[x] Failed To Open File! [FAILED] ");
             }
             
-            //fprintf(userCred, "%s", client->username);
+            // Hash the password for more security.
             hashedPassword = crypt(client->password, client->username);
             if (hashedPassword != NULL)
             {
@@ -298,6 +310,13 @@ void authenticate()
             loginAttempt++;
         }
     }
+
+    if (loginAttempt == 3)
+    {
+        perror("\n[x] Too Many Authentication Attempt! [YOU'RE FIRED!!!] ");
         
+    }
+
+    free(client);
 
 }
