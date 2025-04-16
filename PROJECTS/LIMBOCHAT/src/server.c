@@ -21,12 +21,19 @@ int server_socket;
 FILE* userCred;
 char* hashedPassword;
 
+// Client Credentials Structure.
+typedef struct
+{
+    char username[32];
+    char password[32];
+
+} Credentials;
+
 // Client Tracking Structure. 
 typedef struct
 {
     int socket_fd;
     char username[32];
-    char password[50];
     bool is_authenticated;
 
 } Client;
@@ -45,11 +52,7 @@ int main()
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
-<<<<<<< HEAD
-
-=======
     
->>>>>>> ed0c236ee148cd71c6f368ce6cfd4879e02753f3
 
     /* Initialize TCP Server: socket(), bind(), listen() */
 
@@ -189,21 +192,19 @@ void handle_sigint(int sig)
 void authenticate()
 {
     // Each new client must pass through this before being allowed to chat.
-    char prompt[50];
 
     char authOptions[2][10] = {
         "/login",
         "/register"
     };
     char authChoice[10];
-    char username[32];
-    char password[50];
+    char authStatus[50];
+    
     ssize_t bytes_received;
 
-    Client* client = malloc(sizeof(Client));
+    Credentials* creds = malloc(sizeof(Credentials));
 
     int loginAttempt = 0;
-
 
     while (loginAttempt < 3)
     {
@@ -211,88 +212,39 @@ void authenticate()
         char buffer[85];
         char compareBuffer[BUFFER_SIZE];
 
-        // Copy the authentication prompt message into the prompt buffer.
-        strcpy(prompt, "LOGIN or REGISTER [enter /login or /register]: ");
-
-        // Send the authentication prompt to the client.
-        if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+        // Receive the client authentication choice.
+        bytes_received = recv(client_socket, authChoice, sizeof(authChoice), 0);
+        if (bytes_received < 0)
         {
-            perror("[x] Failed To Send Aurthenticatioin Prompt To The Client! [FAILED] ");
-            continue;
+            perror("[x] Failed To Receive Authentication Choice From Client! [FAILED] ");
         }
         else
         {
-            // Receive the client's response.
-            bytes_received = recv(client_socket, authChoice, strlen(authChoice), 0);
-            if (bytes_received < 0)
-            {
-                perror("[x] Failed To Receive Response From The Client! [FAILED] ");
-                exit(1);
-            }
-            authChoice[bytes_received] = '\0';
-            
+            authChoice[strcspn(authChoice, "\n")] = '\0';
+            printf("%s\n", authChoice);
         }
-
-        /* Do the required authentication process based on client's response.*/
         
         // LOGIN PROCESS.
         if (strcmp(authChoice, authOptions[0]) == 0)
         {
-            // Do LOGIN Process.
+            // Do LOGIN process.
 
-            // Copy the username prompt message into the prompt buffer.
-            strcpy(prompt, "Enter username: ");
-
-            // Send the username prompt to the client.
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            // Receive credentials from the client.
+            bytes_received = recv(client_socket, creds, sizeof(Credentials), 0);
+            if (bytes_received < 0)
             {
-                perror("[x] Failed To Send Username Prompt To The Client! [FAILED] ");
-                continue;
+                perror("[x] Failed To Receive Credentials From The Client! [FAILED] ");
             }
             else
             {
-                // Receive the client's response.
-                bytes_received = recv(client_socket, username, strlen(username), 0);
-                if (bytes_received < 0)
-                {
-                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
-                    exit(1);
-                }
-                username[bytes_received] = '\0';
-                
+                printf("%s:%s\n", creds->username, creds->password);
             }
-            strncpy(client->username, username, sizeof(client->username));
-
-
-            // Copy the password prompt message into the prompt buffer.
-            strcpy(prompt, "Enter password: ");
-
-            // Send the password prompt to the client.
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
-            {
-                perror("[x] Failed To Send Password Prompt To The Client! [FAILED] ");
-                continue;
-            }
-            else
-            {
-                // Receive the client's password.
-                bytes_received = recv(client_socket, password, strlen(password), 0);
-                if (bytes_received < 0)
-                {
-                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
-                    exit(1);
-                }
-                password[bytes_received] = '\0';
-                
-            }
-            strncpy(client->password, password, sizeof(client->password));
-
             
 
-            hashedPassword = crypt(client->password, client->username);
+            hashedPassword = crypt(creds->password, creds->username);
             if (hashedPassword != NULL)
             {
-                snprintf(buffer, sizeof(buffer), "%s:%s\n", client->username, hashedPassword);
+                snprintf(buffer, sizeof(buffer), "%s:%s\n", creds->username, hashedPassword);
             } 
             else
             {
@@ -312,10 +264,10 @@ void authenticate()
             if (strstr(compareBuffer, buffer) != NULL)
             {
                 // Copy success message into the prompt buffer.
-                strcpy(prompt, "[+] Logging in... [SUCCESS]\n");
+                strcpy(authStatus, "[+] Authentication Successful! [SUCCESS]\n");
 
                 // Send the success message to the client.
-                if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+                if (send(client_socket, authStatus, strlen(authStatus), 0) < 0)
                 {
                     perror("[x] Failed To Send Success Message To The Client! [FAILED] ");
                 }
@@ -326,7 +278,12 @@ void authenticate()
             else
             {
                 loginAttempt++;
-                perror("[x] Invalid Username Or Password! [FAILED] ");
+                strcpy(authStatus, "[x] Invalid Credentials! [FAILED]\n");
+                if (send(client_socket, authStatus, strlen(authStatus), 0) < 0)
+                {
+                    perror("[x] Failed To Send Failure Message To The Client! [FAILED] ");
+                }
+                continue;
             }
         }
         
@@ -335,28 +292,17 @@ void authenticate()
         {
             // Do REGISTRATION Process.
 
-            // Copy the username prompt message into the prompt buffer.
-            strcpy(prompt, "Enter username: ");
-
-            // Send the username prompt to the client.
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            // Receive the client's response.
+            bytes_received = recv(client_socket, creds, sizeof(Credentials), 0);
+            if (bytes_received < 0)
             {
-                perror("[x] Failed To Send Username Prompt To The Client! [FAILED] ");
-                continue;
+                perror("[x] Failed To Receive Credentials From The Client! [FAILED] ");
+                
             }
             else
             {
-                // Receive the client's response.
-                bytes_received = recv(client_socket, username, strlen(username), 0);
-                if (bytes_received < 0)
-                {
-                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
-                    exit(1);
-                }
-                username[bytes_received] = '\0';
-                
+                printf("%s:%s\n", creds->username, creds->password);
             }
-            strncpy(client->username, username, sizeof(client->username));
 
             // Check if username already exist.
             userCred = fopen("./users.txt", "r");
@@ -369,35 +315,16 @@ void authenticate()
 
             fclose(userCred);
 
-            if (strstr(compareBuffer, client->username) != NULL)
+            if (strstr(compareBuffer, creds->username) != NULL)
             {
                 loginAttempt++;
-                perror("[x] Username Already Exist! [FAILED] ");
-                continue;
-            }
-
-            // Copy the password prompt message into the prompt buffer.
-            strcpy(prompt, "Enter password: ");
-
-            // Send the password prompt to the client.
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
-            {
-                perror("[x] Failed To Send Password Prompt To The Client! [FAILED] ");
-                continue;
-            }
-            else
-            {
-                // Receive the client's password.
-                bytes_received = recv(client_socket, password, strlen(password), 0);
-                if (bytes_received < 0)
+                strcpy(authStatus, "[x] Username Already Exist! [FAILED]\n");
+                if (send(client_socket, authStatus, strlen(authStatus), 0) < 0)
                 {
-                    perror("[x] Failed To Receive Password From The Client! [FAILED] ");
-                    exit(1);
+                    perror("[x] Failed To Send Failure Message To The Client! [FAILED] ");
                 }
-                password[bytes_received] = '\0';
-                
+                continue;
             }
-            strncpy(client->password, password, sizeof(client->password));
 
             // Save username and password to file.
             userCred = fopen("./users.txt", "a");
@@ -407,10 +334,10 @@ void authenticate()
             }
             
             // Hash the password for more security.
-            hashedPassword = crypt(client->password, client->username);
+            hashedPassword = crypt(creds->password, creds->username);
             if (hashedPassword != NULL)
             {
-                fprintf(userCred, "%s:%s\n", client->username, hashedPassword);
+                fprintf(userCred, "%s:%s\n", creds->username, hashedPassword);
             } 
             else
             {
@@ -420,39 +347,27 @@ void authenticate()
             fclose(userCred);
 
             // Copy success message into the prompt buffer.
-            strcpy(prompt, "[+] Registering... [SUCCESS]\n");
-
-            // Send the success message to the client.
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
-            {
-                perror("[x] Failed To Send Success Message To The Client! [FAILED] ");
-            }
-
+            strcpy(authStatus, "[+] Registration Successful! [SUCCESS]\n");
+            if (send(client_socket, authStatus, strlen(authStatus), 0) < 0)
+                {
+                    perror("[x] Failed To Send Failure Message To The Client! [FAILED] ");
+                }
             sleep(2);
             break;
         }
         else
         {
-            sprintf(prompt, "Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
-            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
-            {
-                perror("[x] Failed To Send Invalid Choice Message To The Client! [FAILED] ");
-            }
-            
+            printf("[x] Invalid Choice! [FAILED]\n");           
             loginAttempt++;
         }
     }
 
     if (loginAttempt == 3)
     {
-        sprintf(prompt, "\n[x] Too Many Attempt! [YOU'RE FIRED!!!] ");
-        if (send(client_socket, prompt, strlen(prompt), 0) < 0)
-        {
-            perror("[x] Failed To Send Failed Attempts Message To The Client! [FAILED] ");
-        }
-        
+        perror("[x] Failed To Authenticate The Client! [FAILED] ");
+        sleep(3);
     }
 
-    free(client);
+    free(creds);
 
 }

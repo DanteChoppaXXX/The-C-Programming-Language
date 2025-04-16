@@ -17,14 +17,13 @@
 int client_socket;
 char* hashedPassword;
 
-// Client Credential Structure.
+// Client Credentials Structure.
 typedef struct
 {
-    int socket_fd;
     char username[32];
-    char password[50];
+    char password[32];
 
-} Client;
+} Credentials;
 
 
 // Function Prototype.
@@ -136,170 +135,90 @@ void handle_sigint(int sig)
 
 void authenticate()
 {
-<<<<<<< HEAD
-    // Authenticate with the server in order to chat with other users.
-    char authMessage[50];
-    char authChoice[10];
-    char username[32];
-    char password[50];
-    ssize_t bytes_received;
-    int authStatus = -1;
-
-    while (authStatus < 0)
-    {
-        // Receive authentication message from the server.
-        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
-        if (bytes_received < 0)
-        {
-            perror("[x] Failed To Receive Authentication Message From The Server! [FAILED] ");
-        }
-        else
-        {
-            // Null terminate the received data.
-            authMessage[bytes_received] = '\0';
-            printf("%s\n", authMessage);
-        }
-
-        fgets(authChoice, 10, stdin);
-        authChoice[strlen(authChoice) - 1] = '\0';
-
-        // Send response to the server.
-        if (send(client_socket, authChoice, strlen(authChoice), 0) < 0)
-        {
-            perror("[x] Failed To Send Response To The Server! [FAILED] ");
-        }
-
-        // Receive username prompt from the server.
-        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
-
-        if (bytes_received < 0)
-        {
-            perror("[x] Failed To Receive Username Prompt From The Server! [FAILED] ");
-        }
-        else
-        {
-            // Null terminate the received data.
-            authMessage[bytes_received] = '\0';
-            printf("%s\n", authMessage);
-        }
-
-        fgets(username, 32, stdin);
-        username[strlen(username) - 1] = '\0';
-
-        // Send username to the server.
-        if (send(client_socket, username, strlen(username), 0) < 0)
-        {
-            perror("[x] Failed To Send Username To The Server! [FAILED] ");
-        }
-
-        // Receive password prompt from the server.
-        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
-
-        if (bytes_received < 0)
-        {
-            perror("[x] Failed To Receive Password Prompt From The Server! [FAILED] ");
-        }
-        else
-        {
-            // Null terminate the received data.
-            authMessage[bytes_received] = '\0';
-            printf("%s\n", authMessage);
-        }
-
-        fgets(password, 50, stdin);
-        password[strlen(password) - 1] = '\0';
-
-        // Send password to the server.
-        if (send(client_socket, password, strlen(password), 0) < 0)
-        {
-            perror("[x] Failed To Send Password To The Server! [FAILED] ");
-        }
-
-        // Receive authentication status from the server.
-        authStatus = recv(client_socket, authMessage, strlen(authMessage),0);
-
-        if (authStatus < 0)
-        {
-            perror("[x] Failed To Receive Password Prompt From The Server! [FAILED] ");
-        }
-        else
-        {
-            // Null terminate the received data.
-            authMessage[authStatus] = '\0';
-            printf("%s\n", authMessage);
-        }
-
-        }
-    
-    
-=======
     // Each new client must pass through this before being allowed to chat.
     char authOptions[2][10] = {
         "/login",
         "/register"
     };
     char authChoice[10];
-    char username[32];
-    char password[50];
+    // char username[32];
+    // char password[50];
+    char authStatus[50];
+    ssize_t bytes_received;
 
     int loginAttempt = 0;
 
-    Client* client = malloc(sizeof(Client));
+    Credentials* creds = malloc(sizeof(Credentials));
 
     while (loginAttempt < 3)
     {
         printf("LOGIN or REGISTER [enter /login or /register]: ");
         scanf("%s", authChoice);
-        
-        if (strcmp(authChoice, authOptions[0]) == 0)
+
+        if (send(client_socket, authChoice, sizeof(authChoice), 0) < 0)
         {
-            // Do LOGIN process.
+            perror("[x] Failed To Send Credentials To The Server! [FAILED] ");
+            continue;
+        }
+        
+        // Check for valid authentication choice.
+        if (strstr(authOptions[0], authChoice) != NULL || strstr(authOptions[1], authChoice) != NULL)
+        {
+            // AUTHENTICATION PROCESS.
+
             printf("Enter username: ");
-            scanf("%s", username);
-            strncpy(client->username, username, sizeof(client->username));
+            scanf("%s", creds->username);
+            //strncpy(creds->username, username, sizeof(creds->username));
 
 
             printf("Enter password: ");
-            scanf("%s", password);
-            strncpy(client->password, password, sizeof(client->password));
+            scanf("%s", creds->password);
+            //strncpy(creds->password, password, sizeof(creds->password));
 
-            if (send(client_socket, client, sizeof(Client), 0) < 0)
+            if (send(client_socket, creds, sizeof(Credentials), 0) < 0)
             {
-                perror("[x] Failed To Send Message [FAILED] ");
+                perror("[x] Failed To Send Credentials To The Server! [FAILED] ");
             }
             else
             {
-                printf("[+] Username And Password Sent Successfully [SUCCESS]\n");
+                printf("[+] Credentials Sent Successfully [SUCCESS]\n");
             }
 
-        }
-        else if (strcmp(authChoice, authOptions[1]) == 0)
-        {
-            // Do REGISTRATION process.
-            printf("Enter username: ");
-            scanf("%s", username);
-            strncpy(client->username, username, sizeof(client->username));
+            bytes_received = recv(client_socket, authStatus, sizeof(authStatus), 0);
+            if (bytes_received <= 0)
+            {
+                perror("[x] Failed To Receive Authentication Status From The Server! [FAILED] ");
+            }
+            else
+            {
+                authStatus[strcspn(authStatus, "\n")] = '\0';
+                printf("%s\n", authStatus);
 
-            printf("Enter password: ");
-            scanf("%s", password);
-            strncpy(client->password, password, sizeof(client->password));
-
-            printf("[+] Registering ... [SUCCESS]\n");
-            sleep(2);
-            break;
+                if (strstr(authStatus, "FAILED") != NULL)
+                {
+                    loginAttempt++;
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+                
+            }
         }
         else
         {
-            printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+            printf("[x] Invalid Choice! [FAILED]\n");           
             loginAttempt++;
+            continue;
         }
+        
     }
-
     if (loginAttempt == 3)
     {
         perror("\n[x] Too Many Authentication Attempt! [YOU'RE FIRED!!!] ");
-        
+        exit(1);
     }
 
->>>>>>> ed0c236ee148cd71c6f368ce6cfd4879e02753f3
+    free(creds);
 }

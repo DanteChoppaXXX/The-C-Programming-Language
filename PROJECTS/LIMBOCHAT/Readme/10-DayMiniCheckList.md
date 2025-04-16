@@ -12,11 +12,11 @@
 ---
 
 ### **Day 2 – One Client, Authentication System**
-- [ ] Send "Login or Register?" prompt
-- [ ] Handle `/login <user> <pass>` and `/register <user> <pass>`
-- [ ] Create `users.txt` to store credentials (plain text or hashed)
-- [ ] Check credentials on login
-- [ ] Prevent duplicate usernames during registration
+- ✅ Send "Login or Register?" prompt
+- ✅ Handle `/login <user> <pass>` and `/register <user> <pass>`
+- ✅ Create `users.txt` to store credentials (plain text or hashed)
+- ✅ Check credentials on login
+- ✅ Prevent duplicate usernames during registration
 - [ ] Allow only authenticated users to chat
 
 ---
