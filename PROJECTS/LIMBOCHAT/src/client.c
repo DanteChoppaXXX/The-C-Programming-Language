@@ -15,10 +15,12 @@
 
 // Global Variables.
 int client_socket;
+char* hashedPassword;
 
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
+void authenticate();
 
 int main()
 {
@@ -118,4 +120,66 @@ void handle_sigint(int sig)
 
     // Exit Gracefully.
     exit(0);
+}
+
+void authenticate()
+{
+    // Each new client must pass through this before being allowed to chat.
+    char authOptions[2][10] = {
+        "/login",
+        "/register"
+    };
+    char authChoice[10];
+    char username[32];
+    char password[50];
+
+    int loginAttempt = 0;
+
+
+    while (loginAttempt < 3)
+    {
+        printf("LOGIN or REGISTER [enter /login or /register]: ");
+        scanf("%s", authChoice);
+        
+        if (strcmp(authChoice, authOptions[0]) == 0)
+        {
+            // Do LOGIN process.
+            printf("Enter username: ");
+            scanf("%s", username);
+            strncpy(client->username, username, sizeof(client->username));
+
+
+            printf("Enter password: ");
+            scanf("%s", password);
+            strncpy(client->password, password, sizeof(client->password));
+
+        }
+        else if (strcmp(authChoice, authOptions[1]) == 0)
+        {
+            // Do REGISTRATION process.
+            printf("Enter username: ");
+            scanf("%s", username);
+            strncpy(client->username, username, sizeof(client->username));
+
+            printf("Enter password: ");
+            scanf("%s", password);
+            strncpy(client->password, password, sizeof(client->password));
+
+            printf("[+] Registering ... [SUCCESS]\n");
+            sleep(2);
+            break;
+        }
+        else
+        {
+            printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+            loginAttempt++;
+        }
+    }
+
+    if (loginAttempt == 3)
+    {
+        perror("\n[x] Too Many Authentication Attempt! [YOU'RE FIRED!!!] ");
+        
+    }
+
 }

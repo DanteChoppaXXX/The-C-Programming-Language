@@ -45,8 +45,7 @@ int main()
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
-    // Authenticate Client.
-    authenticate();
+    
 
     /* Initialize TCP Server: socket(), bind(), listen() */
 
@@ -103,6 +102,9 @@ int main()
     }
 
     printf("[+] New Client Accepted On Socket FD %d [SUCCESS]\n", client_socket);
+
+    // Authenticate Client.
+    authenticate();
     
     // Send a welcome message to the client.
     char message[] = "WELCOME TO LIMBO\n";
