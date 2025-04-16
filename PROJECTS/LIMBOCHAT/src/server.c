@@ -41,7 +41,7 @@ typedef struct
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
-void authenticate();
+int authenticate();
 char hashPassword(char* password);
 
 
@@ -110,11 +110,26 @@ int main()
 
     printf("[+] New Client Accepted On Socket FD %d [SUCCESS]\n", client_socket);
 
-    // Authenticate Client.
-    authenticate();
+    Client* client = malloc(sizeof(Client));
     
+    // Authenticate Client.
+    client->is_authenticated = authenticate();
+    
+    // Allow only authenticated users to chat.
+    if (client->is_authenticated != 1)
+    {
+        char message[] = "[x] Only Authenticated Users Can Chat! [FAILED]\n";
+        if (send(client_socket, message, strlen(message), 0) < 0)
+        {
+            perror("[x] Failed To Send Message [FAILED] ");
+        }
+        client_socket = -1;
+
+    }
+    
+
     // Send a welcome message to the client.
-    char message[] = "WELCOME TO LIMBO\n";
+    char message[] = "WELCOME TO LIMBO";
     
     if (send(client_socket, message, strlen(message), 0) < 0)
     {
@@ -145,14 +160,12 @@ int main()
 
         // Send message to client.
         char mBuffer[BUFFER_SIZE];
-        int length;
 
         printf("[Server]: ");
         fgets(mBuffer, BUFFER_SIZE, stdin);
-        length = strlen(mBuffer);
-        mBuffer[length - 1] = '\0';
+        mBuffer[strcspn(mBuffer, "\n")] = '\0';
 
-        if (send(client_socket, mBuffer, strlen(mBuffer), 0) < 0)
+        if (send(client_socket, mBuffer, sizeof(mBuffer), 0) < 0)
         {
             perror("[x] Failed To Send Message [FAILED] ");
         }
@@ -189,7 +202,7 @@ void handle_sigint(int sig)
 }
 
 // Authenticates each incoming client.
-void authenticate()
+int authenticate()
 {
     // Each new client must pass through this before being allowed to chat.
 
@@ -273,7 +286,7 @@ void authenticate()
                 }
 
                 sleep(2);
-                break;
+                return 1;
             }
             else
             {
@@ -353,7 +366,7 @@ void authenticate()
                     perror("[x] Failed To Send Failure Message To The Client! [FAILED] ");
                 }
             sleep(2);
-            break;
+            return 1;
         }
         else
         {
@@ -366,6 +379,7 @@ void authenticate()
     {
         perror("[x] Failed To Authenticate The Client! [FAILED] ");
         sleep(3);
+        return 0;
     }
 
     free(creds);

@@ -17,7 +17,7 @@
 - ✅ Create `users.txt` to store credentials (plain text or hashed)
 - ✅ Check credentials on login
 - ✅ Prevent duplicate usernames during registration
-- [ ] Allow only authenticated users to chat
+- ✅ Allow only authenticated users to chat
 
 ---
 

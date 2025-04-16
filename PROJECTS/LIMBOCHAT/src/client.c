@@ -70,10 +70,42 @@ int main()
 
     authenticate();
         
+    char buffer[BUFFER_SIZE];
+
+    // Receive message from the server.
+    ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
+    if (bytes_received < 0)
+    {
+        perror("[x] Failed To Receive Message From The Server! [FAILED] ");
+        return EXIT_FAILURE;
+    }
+    else
+    {
+        // Null terminate the received data.
+        buffer[bytes_received] = '\0';
+        printf("\n%s\n", buffer);
+    }
+
     /* Basic send/recv Loop With Client */
 
     while (1)
     {
+        // Send message to the server.
+        char mBuffer[BUFFER_SIZE];
+    
+        printf("[Client]: ");
+        fgets(mBuffer, BUFFER_SIZE, stdin);
+        mBuffer[strcspn(mBuffer, "\n")] = '\0';
+    
+        if (send(client_socket, mBuffer, sizeof(mBuffer), 0) < 0)
+        {
+            perror("[x] Failed To Send Message [FAILED] ");
+        }
+        else
+        {
+            printf("[SUCCESS]\n");
+        }
+
         // Communicate with the server.
         char buffer[BUFFER_SIZE];
 
@@ -91,23 +123,6 @@ int main()
             printf("[Server]: %s\n", buffer);
         }
 
-        // Send message to the server.
-        char mBuffer[BUFFER_SIZE];
-        int length;
-
-        printf("[Client]: ");
-        fgets(mBuffer, BUFFER_SIZE, stdin);
-        length = strlen(mBuffer);
-        mBuffer[length - 1] = '\0';
-
-        if (send(client_socket, mBuffer, strlen(mBuffer), 0) < 0)
-        {
-            perror("[x] Failed To Send Message [FAILED] ");
-        }
-        else
-        {
-            printf("[SUCCESS]\n");
-        }
         
     }
 
@@ -168,12 +183,11 @@ void authenticate()
 
             printf("Enter username: ");
             scanf("%s", creds->username);
-            //strncpy(creds->username, username, sizeof(creds->username));
 
 
             printf("Enter password: ");
             scanf("%s", creds->password);
-            //strncpy(creds->password, password, sizeof(creds->password));
+            fflush(NULL);
 
             if (send(client_socket, creds, sizeof(Credentials), 0) < 0)
             {
