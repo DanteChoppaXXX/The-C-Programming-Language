@@ -19,6 +19,7 @@ int client_socket;
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
+void authenticate();
 
 int main()
 {
@@ -49,14 +50,16 @@ int main()
     
     if (connect(client_socket, (struct sockaddr*)&server_address, server_address_len) < 0)
     {
-        perror("[x] Failed To Connect To Server! [FAILED] ");
+        perror("[x] Failed To Connect To The Server! [FAILED] ");
         return EXIT_FAILURE;
     }
     else
     {
         printf("[+] Connection Successful! [SUCCESS]\n");
     }
-    
+
+    authenticate();
+        
     /* Basic send/recv Loop With Client */
 
     while (1)
@@ -65,10 +68,10 @@ int main()
         char buffer[BUFFER_SIZE];
 
         // Receive message from the server.
-        size_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
+        ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
         if (bytes_received < 0)
         {
-            perror("[x] Failed To Receive Message From Server! [FAILED] ");
+            perror("[x] Failed To Receive Message From The Server! [FAILED] ");
             return EXIT_FAILURE;
         }
         else
@@ -118,4 +121,103 @@ void handle_sigint(int sig)
 
     // Exit Gracefully.
     exit(0);
+}
+
+void authenticate()
+{
+    // Authenticate with the server in order to chat with other users.
+    char authMessage[50];
+    char authChoice[10];
+    char username[32];
+    char password[50];
+    ssize_t bytes_received;
+    int authStatus = -1;
+
+    while (authStatus < 0)
+    {
+        // Receive authentication message from the server.
+        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Authentication Message From The Server! [FAILED] ");
+        }
+        else
+        {
+            // Null terminate the received data.
+            authMessage[bytes_received] = '\0';
+            printf("%s\n", authMessage);
+        }
+
+        fgets(authChoice, 10, stdin);
+        authChoice[strlen(authChoice) - 1] = '\0';
+
+        // Send response to the server.
+        if (send(client_socket, authChoice, strlen(authChoice), 0) < 0)
+        {
+            perror("[x] Failed To Send Response To The Server! [FAILED] ");
+        }
+
+        // Receive username prompt from the server.
+        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
+
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Username Prompt From The Server! [FAILED] ");
+        }
+        else
+        {
+            // Null terminate the received data.
+            authMessage[bytes_received] = '\0';
+            printf("%s\n", authMessage);
+        }
+
+        fgets(username, 32, stdin);
+        username[strlen(username) - 1] = '\0';
+
+        // Send username to the server.
+        if (send(client_socket, username, strlen(username), 0) < 0)
+        {
+            perror("[x] Failed To Send Username To The Server! [FAILED] ");
+        }
+
+        // Receive password prompt from the server.
+        bytes_received = recv(client_socket, authMessage, strlen(authMessage),0);
+
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Password Prompt From The Server! [FAILED] ");
+        }
+        else
+        {
+            // Null terminate the received data.
+            authMessage[bytes_received] = '\0';
+            printf("%s\n", authMessage);
+        }
+
+        fgets(password, 50, stdin);
+        password[strlen(password) - 1] = '\0';
+
+        // Send password to the server.
+        if (send(client_socket, password, strlen(password), 0) < 0)
+        {
+            perror("[x] Failed To Send Password To The Server! [FAILED] ");
+        }
+
+        // Receive authentication status from the server.
+        authStatus = recv(client_socket, authMessage, strlen(authMessage),0);
+
+        if (authStatus < 0)
+        {
+            perror("[x] Failed To Receive Password Prompt From The Server! [FAILED] ");
+        }
+        else
+        {
+            // Null terminate the received data.
+            authMessage[authStatus] = '\0';
+            printf("%s\n", authMessage);
+        }
+
+        }
+    
+    
 }

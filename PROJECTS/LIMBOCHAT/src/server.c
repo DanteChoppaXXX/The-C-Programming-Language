@@ -45,8 +45,7 @@ int main()
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
-    // Authenticate Client.
-    authenticate();
+
 
     /* Initialize TCP Server: socket(), bind(), listen() */
 
@@ -103,6 +102,9 @@ int main()
     }
 
     printf("[+] New Client Accepted On Socket FD %d [SUCCESS]\n", client_socket);
+
+    // Authenticate Client.
+    authenticate();
     
     // Send a welcome message to the client.
     char message[] = "WELCOME TO LIMBO\n";
@@ -122,10 +124,10 @@ int main()
     {
         char buffer[BUFFER_SIZE];
 
-        size_t bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
+        ssize_t bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
         if (bytes_received < 0)
         {
-            perror("[x] Failed To Receive Message From Client! [FAILED] ");
+            perror("[x] Failed To Receive Message From The Client! [FAILED] ");
             return EXIT_FAILURE;
         }
         else
@@ -183,6 +185,8 @@ void handle_sigint(int sig)
 void authenticate()
 {
     // Each new client must pass through this before being allowed to chat.
+    char prompt[50];
+
     char authOptions[2][10] = {
         "/login",
         "/register"
@@ -190,6 +194,7 @@ void authenticate()
     char authChoice[10];
     char username[32];
     char password[50];
+    ssize_t bytes_received;
 
     Client* client = malloc(sizeof(Client));
 
@@ -202,19 +207,80 @@ void authenticate()
         char buffer[85];
         char compareBuffer[BUFFER_SIZE];
 
-        printf("LOGIN or REGISTER [enter /login or /register]: ");
-        scanf("%s", authChoice);
+        // Copy the authentication prompt message into the prompt buffer.
+        strcpy(prompt, "LOGIN or REGISTER [enter /login or /register]: ");
+
+        // Send the authentication prompt to the client.
+        if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+        {
+            perror("[x] Failed To Send Aurthenticatioin Prompt To The Client! [FAILED] ");
+            continue;
+        }
+        else
+        {
+            // Receive the client's response.
+            bytes_received = recv(client_socket, authChoice, strlen(authChoice), 0);
+            if (bytes_received < 0)
+            {
+                perror("[x] Failed To Receive Response From The Client! [FAILED] ");
+                exit(1);
+            }
+            authChoice[bytes_received] = '\0';
+            
+        }
+
+        /* Do the required authentication process based on client's response.*/
         
+        // LOGIN PROCESS.
         if (strcmp(authChoice, authOptions[0]) == 0)
         {
-            // Do LOGIN process.
-            printf("Enter username: ");
-            scanf("%s", username);
+            // Do LOGIN Process.
+
+            // Copy the username prompt message into the prompt buffer.
+            strcpy(prompt, "Enter username: ");
+
+            // Send the username prompt to the client.
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Username Prompt To The Client! [FAILED] ");
+                continue;
+            }
+            else
+            {
+                // Receive the client's response.
+                bytes_received = recv(client_socket, username, strlen(username), 0);
+                if (bytes_received < 0)
+                {
+                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
+                    exit(1);
+                }
+                username[bytes_received] = '\0';
+                
+            }
             strncpy(client->username, username, sizeof(client->username));
 
 
-            printf("Enter password: ");
-            scanf("%s", password);
+            // Copy the password prompt message into the prompt buffer.
+            strcpy(prompt, "Enter password: ");
+
+            // Send the password prompt to the client.
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Password Prompt To The Client! [FAILED] ");
+                continue;
+            }
+            else
+            {
+                // Receive the client's password.
+                bytes_received = recv(client_socket, password, strlen(password), 0);
+                if (bytes_received < 0)
+                {
+                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
+                    exit(1);
+                }
+                password[bytes_received] = '\0';
+                
+            }
             strncpy(client->password, password, sizeof(client->password));
 
             
@@ -241,7 +307,15 @@ void authenticate()
             // Condition for valid credentials.
             if (strstr(compareBuffer, buffer) != NULL)
             {
-                printf("[+] Logging in... [SUCCESS]\n");
+                // Copy success message into the prompt buffer.
+                strcpy(prompt, "[+] Logging in... [SUCCESS]\n");
+
+                // Send the success message to the client.
+                if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+                {
+                    perror("[x] Failed To Send Success Message To The Client! [FAILED] ");
+                }
+
                 sleep(2);
                 break;
             }
@@ -251,11 +325,33 @@ void authenticate()
                 perror("[x] Invalid Username Or Password! [FAILED] ");
             }
         }
+        
+        // REGISTRATION PROCESS.
         else if (strcmp(authChoice, authOptions[1]) == 0)
         {
-            // Do REGISTRATION process.
-            printf("Enter username: ");
-            scanf("%s", username);
+            // Do REGISTRATION Process.
+
+            // Copy the username prompt message into the prompt buffer.
+            strcpy(prompt, "Enter username: ");
+
+            // Send the username prompt to the client.
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Username Prompt To The Client! [FAILED] ");
+                continue;
+            }
+            else
+            {
+                // Receive the client's response.
+                bytes_received = recv(client_socket, username, strlen(username), 0);
+                if (bytes_received < 0)
+                {
+                    perror("[x] Failed To Receive Username From The Client! [FAILED] ");
+                    exit(1);
+                }
+                username[bytes_received] = '\0';
+                
+            }
             strncpy(client->username, username, sizeof(client->username));
 
             // Check if username already exist.
@@ -276,8 +372,27 @@ void authenticate()
                 continue;
             }
 
-            printf("Enter password: ");
-            scanf("%s", password);
+            // Copy the password prompt message into the prompt buffer.
+            strcpy(prompt, "Enter password: ");
+
+            // Send the password prompt to the client.
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Password Prompt To The Client! [FAILED] ");
+                continue;
+            }
+            else
+            {
+                // Receive the client's password.
+                bytes_received = recv(client_socket, password, strlen(password), 0);
+                if (bytes_received < 0)
+                {
+                    perror("[x] Failed To Receive Password From The Client! [FAILED] ");
+                    exit(1);
+                }
+                password[bytes_received] = '\0';
+                
+            }
             strncpy(client->password, password, sizeof(client->password));
 
             // Save username and password to file.
@@ -300,20 +415,37 @@ void authenticate()
 
             fclose(userCred);
 
-            printf("[+] Registering ... [SUCCESS]\n");
+            // Copy success message into the prompt buffer.
+            strcpy(prompt, "[+] Registering... [SUCCESS]\n");
+
+            // Send the success message to the client.
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Success Message To The Client! [FAILED] ");
+            }
+
             sleep(2);
             break;
         }
         else
         {
-            printf("Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+            sprintf(prompt, "Invalid Choice! (enter %s or %s)\n", authOptions[0], authOptions[1]);
+            if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+            {
+                perror("[x] Failed To Send Invalid Choice Message To The Client! [FAILED] ");
+            }
+            
             loginAttempt++;
         }
     }
 
     if (loginAttempt == 3)
     {
-        perror("\n[x] Too Many Authentication Attempt! [YOU'RE FIRED!!!] ");
+        sprintf(prompt, "\n[x] Too Many Attempt! [YOU'RE FIRED!!!] ");
+        if (send(client_socket, prompt, strlen(prompt), 0) < 0)
+        {
+            perror("[x] Failed To Send Failed Attempts Message To The Client! [FAILED] ");
+        }
         
     }
 
