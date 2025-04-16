@@ -195,7 +195,9 @@ void authenticate()
 
     Client* client = malloc(sizeof(Client));
 
+
     int loginAttempt = 0;
+    ssize_t bytes_received;
 
 
     while (loginAttempt < 3)
@@ -204,21 +206,34 @@ void authenticate()
         char buffer[85];
         char compareBuffer[BUFFER_SIZE];
 
-        printf("LOGIN or REGISTER [enter /login or /register]: ");
-        scanf("%s", authChoice);
+        // Receive the client authentication choice.
+        bytes_received = recv(client_socket, authChoice, sizeof(authChoice), 0);
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Authentication Choice From Client! [FAILED] ");
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            authChoice[strcspn(authChoice, "\n")] = '\0';
+            printf("%s\n", authChoice);
+        }
         
         if (strcmp(authChoice, authOptions[0]) == 0)
         {
             // Do LOGIN process.
-            printf("Enter username: ");
-            scanf("%s", username);
-            strncpy(client->username, username, sizeof(client->username));
 
-
-            printf("Enter password: ");
-            scanf("%s", password);
-            strncpy(client->password, password, sizeof(client->password));
-
+            // Receive username and password from the client.
+            bytes_received = recv(client_socket, client, sizeof(Client), 0);
+            if (bytes_received < 0)
+            {
+                perror("[x] Failed To Receive Message From Client! [FAILED] ");
+                return EXIT_FAILURE;
+            }
+            else
+            {
+                
+            }
             
 
             hashedPassword = crypt(client->password, client->username);

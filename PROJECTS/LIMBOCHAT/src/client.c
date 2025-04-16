@@ -17,6 +17,16 @@
 int client_socket;
 char* hashedPassword;
 
+// Client Credential Structure.
+typedef struct
+{
+    int socket_fd;
+    char username[32];
+    char password[50];
+
+} Client;
+
+
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
@@ -135,6 +145,7 @@ void authenticate()
 
     int loginAttempt = 0;
 
+    Client* client = malloc(sizeof(Client));
 
     while (loginAttempt < 3)
     {
@@ -152,6 +163,15 @@ void authenticate()
             printf("Enter password: ");
             scanf("%s", password);
             strncpy(client->password, password, sizeof(client->password));
+
+            if (send(client_socket, client, sizeof(Client), 0) < 0)
+            {
+                perror("[x] Failed To Send Message [FAILED] ");
+            }
+            else
+            {
+                printf("[+] Username And Password Sent Successfully [SUCCESS]\n");
+            }
 
         }
         else if (strcmp(authChoice, authOptions[1]) == 0)
