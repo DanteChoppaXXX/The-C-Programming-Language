@@ -45,7 +45,11 @@ int main()
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> ed0c236ee148cd71c6f368ce6cfd4879e02753f3
 
     /* Initialize TCP Server: socket(), bind(), listen() */
 
