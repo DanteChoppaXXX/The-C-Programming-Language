@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/errno.h>
 #include <signal.h>
+#include <pthread.h>
 
 #define SERVER_PORT 4190
 #define SERVER_IP "127.0.0.1"
@@ -16,6 +17,7 @@
 // Global Variables.
 int client_socket;
 char* hashedPassword;
+pthread_t send_thread, recv_thread;
 
 // Client Credentials Structure.
 typedef struct
@@ -25,16 +27,25 @@ typedef struct
 
 } Credentials;
 
+// List of commands.
+char commands[3][10] = {
+    "/help",
+    "/users",
+    "/quit",
+};
+
 
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
-void authenticate();
+char* authenticate(char* username);
+void* send_handler(void* arg);
+void* recv_handler(void* arg);
 
 int main()
 {
     /* Clean Exit On Ctrl+C (optional) */
-    
+
     // Register the signal handler.
     signal(SIGINT, handle_sigint);
 
@@ -68,63 +79,17 @@ int main()
         printf("[+] Connection Successful! [SUCCESS]\n");
     }
 
-    authenticate();
-        
-    char buffer[BUFFER_SIZE];
+    char username[32];
+    authenticate(username);
 
-    // Receive message from the server.
-    ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-    if (bytes_received < 0)
-    {
-        perror("[x] Failed To Receive Message From The Server! [FAILED] ");
-        return EXIT_FAILURE;
-    }
-    else
-    {
-        // Null terminate the received data.
-        buffer[bytes_received] = '\0';
-        printf("\n%s\n", buffer);
-    }
+    // Create threads for sending and receiving messages.
+    pthread_create(&send_thread, NULL, send_handler, (void *)username);
+    pthread_create(&recv_thread, NULL, recv_handler, (void *)&client_socket);
 
-    /* Basic send/recv Loop With Client */
-
-    while (1)
-    {
-        // Send message to the server.
-        char mBuffer[BUFFER_SIZE];
+    // Wait for threads to finish.
+    pthread_join(send_thread, NULL);
+    pthread_join(recv_thread, NULL);
     
-        printf("[Client]: ");
-        fgets(mBuffer, BUFFER_SIZE, stdin);
-        mBuffer[strcspn(mBuffer, "\n")] = '\0';
-    
-        if (send(client_socket, mBuffer, sizeof(mBuffer), 0) < 0)
-        {
-            perror("[x] Failed To Send Message [FAILED] ");
-        }
-        else
-        {
-            printf("[SUCCESS]\n");
-        }
-
-        // Communicate with the server.
-        char buffer[BUFFER_SIZE];
-
-        // Receive message from the server.
-        ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-        if (bytes_received < 0)
-        {
-            perror("[x] Failed To Receive Message From The Server! [FAILED] ");
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            // Null terminate the received data.
-            buffer[bytes_received] = '\0';
-            printf("[Server]: %s\n", buffer);
-        }
-
-        
-    }
 
     return EXIT_SUCCESS;
 }
@@ -148,7 +113,7 @@ void handle_sigint(int sig)
     exit(0);
 }
 
-void authenticate()
+char* authenticate(char* username)
 {
     // Each new client must pass through this before being allowed to chat.
     char authOptions[2][10] = {
@@ -156,8 +121,6 @@ void authenticate()
         "/register"
     };
     char authChoice[10];
-    // char username[32];
-    // char password[50];
     char authStatus[50];
     ssize_t bytes_received;
 
@@ -215,7 +178,9 @@ void authenticate()
                 }
                 else
                 {
-                    break;
+                    strncpy(username, creds->username, sizeof(creds->username));
+                    sleep(2);
+                    return username;
                 }
                 
             }
@@ -236,3 +201,69 @@ void authenticate()
 
     free(creds);
 }
+
+
+void* send_handler(void* arg)
+{
+    char* username = arg;
+    
+    /* Sending logic. */
+    while (1)
+    {
+        // Send message to the server.
+        char mBuffer[BUFFER_SIZE];
+        char userBuffer[BUFFER_SIZE];
+    
+        printf("[%s]: ", username);
+        fgets(mBuffer, BUFFER_SIZE, stdin);
+        mBuffer[strcspn(mBuffer, "\n")] = '\0';
+
+        snprintf(userBuffer, BUFFER_SIZE, "[%s]: %s", username, mBuffer);
+    
+        if (send(client_socket, userBuffer, strlen(userBuffer), 0) < 0)
+        {
+            perror("[x] Failed To Send Message [FAILED] ");
+        }
+        
+    }
+
+    return NULL;
+}
+
+void* recv_handler(void* arg)
+{
+    /* Receiving logic. */
+    while (1)
+    {
+        // Receive message from the server.
+        char buffer[BUFFER_SIZE];
+        
+        ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
+        if (bytes_received < 0)
+        {
+            perror("[x] Failed To Receive Message From The Server! [FAILED] ");
+        }
+        else
+        {
+            // Null terminate the received data.
+            buffer[bytes_received] = '\0';
+            printf("%s\n", buffer);
+        }
+
+        
+    }
+
+    return NULL;
+}
+
+
+/* 
+    *TO-DO
+    0. Multi-Threading for sending and receiving. ✅
+    1. Add list of commands.
+    2. Add timestamps ([04:19][username]: <msg>).
+    3. Add Join/Leave Notifications.
+    4. Free the disconnected client socket.
+    
+*/
+

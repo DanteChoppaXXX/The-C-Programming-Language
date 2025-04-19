@@ -22,18 +22,18 @@
 ---
 
 ### **Day 3 – Support Multiple Clients (with `select()`)**
-- [ ] Replace blocking `accept()`/`recv()` with `select()`
-- [ ] Track multiple client sockets
+- ✅ Replace blocking `accept()`/`recv()` with `select()`
+- ✅ Track multiple client sockets
 - [ ] Handle new client connections and data from existing clients
-- [ ] Disconnect idle/closed clients gracefully
+- ✅ Disconnect idle/closed clients gracefully
 
 ---
 
 ### **Day 4 – Client Tracking and Messaging Logic**
-- [ ] Create `struct Client` to store socket, username, and auth status
-- [ ] Maintain a dynamic list or array of connected clients
-- [ ] After successful auth, allow client to send chat messages
-- [ ] Broadcast messages to all other authenticated clients
+- ✅ Create `struct Client` to store socket, username, and auth status
+- ✅ Maintain a dynamic list or array of connected clients
+- ✅ After successful auth, allow client to send chat messages
+- ✅ Broadcast messages to all other authenticated clients
 - [ ] Prefix messages with `[username]:`
 
 ---
