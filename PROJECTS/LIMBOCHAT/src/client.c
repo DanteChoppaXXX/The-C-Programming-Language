@@ -38,7 +38,7 @@ char commands[3][10] = {
 // Function Prototype.
 void cleanup();
 void handle_sigint(int sig);
-char* authenticate(char* username);
+void authenticate(char* username);
 void* send_handler(void* arg);
 void* recv_handler(void* arg);
 
@@ -82,9 +82,22 @@ int main()
     char username[32];
     authenticate(username);
 
+    time_t raw_time;
+    struct tm *timeinfo;
+
+    time(&raw_time);
+    timeinfo = localtime(&raw_time);
+
+    int hour = timeinfo->tm_hour;
+    int mins = timeinfo->tm_min;
+
+    printf("[!] Logged In At %02d:%02d US-Eastern-Time [!]\n", hour, mins);
+
+
     // Create threads for sending and receiving messages.
-    pthread_create(&send_thread, NULL, send_handler, (void *)username);
     pthread_create(&recv_thread, NULL, recv_handler, (void *)&client_socket);
+    sleep(3);
+    pthread_create(&send_thread, NULL, send_handler, (void *)username);
 
     // Wait for threads to finish.
     pthread_join(send_thread, NULL);
@@ -113,7 +126,7 @@ void handle_sigint(int sig)
     exit(0);
 }
 
-char* authenticate(char* username)
+void authenticate(char* username)
 {
     // Each new client must pass through this before being allowed to chat.
     char authOptions[2][10] = {
@@ -179,8 +192,8 @@ char* authenticate(char* username)
                 else
                 {
                     strncpy(username, creds->username, sizeof(creds->username));
-                    sleep(2);
-                    return username;
+                    //sleep(5);
+                    break;
                 }
                 
             }
@@ -206,6 +219,15 @@ char* authenticate(char* username)
 void* send_handler(void* arg)
 {
     char* username = arg;
+
+    time_t raw_time;
+    struct tm *timeinfo;
+
+    time(&raw_time);
+    timeinfo = localtime(&raw_time);
+
+    int hour = timeinfo->tm_hour;
+    int mins = timeinfo->tm_min;
     
     /* Sending logic. */
     while (1)
@@ -214,11 +236,16 @@ void* send_handler(void* arg)
         char mBuffer[BUFFER_SIZE];
         char userBuffer[BUFFER_SIZE];
     
-        printf("[%s]: ", username);
+        printf("[%02d:%02d] [%s]: ",hour, mins, username);
         fgets(mBuffer, BUFFER_SIZE, stdin);
         mBuffer[strcspn(mBuffer, "\n")] = '\0';
 
-        snprintf(userBuffer, BUFFER_SIZE, "[%s]: %s", username, mBuffer);
+        if (strcmp(mBuffer, "") == 0)
+        {
+            continue;
+        }
+        
+        snprintf(userBuffer, BUFFER_SIZE, "[%02d:%02d][%s]: %s", hour, mins, username, mBuffer);
     
         if (send(client_socket, userBuffer, strlen(userBuffer), 0) < 0)
         {

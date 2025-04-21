@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/errno.h>
 #include <sys/types.h>
- #include <sys/time.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <crypt.h>
 
@@ -177,14 +177,14 @@ int main()
                 // Allow only authenticated users to chat.
                 if (clients[i].is_authenticated != 1)
                 {
+                    // Authenticate Client.
+                    authenticate(&clients[i]);
+                    
                     char message[] = "[!] Only Authenticated Users Can Chat! [NOTICE]\n";
                     if (send(clients[i].socket_fd, message, strlen(message), 0) < 0)
                     {
                         perror("[x] Failed To Send Notice Message [FAILED] ");
                     }
-                    
-                    // Authenticate Client.
-                    authenticate(&clients[i]);
                 }
                 
                 // Add the new client socket to the array of sockets.
@@ -220,7 +220,7 @@ int main()
                 {
                     // Null terminate the data read.
                     buffer[bytes_read] = '\0';
-                    printf("[%s]: %s\n", clients[i].username, buffer);
+                    printf("%s\n", buffer);
 
                     // Broadcast the message to all clients.
                     for (int i = 0; i < MAX_CLIENTS; i++)
